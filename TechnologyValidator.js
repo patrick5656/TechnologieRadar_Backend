@@ -3,7 +3,7 @@ const ring = ['Adopt', 'Trial', 'Assess', 'Hold'];
 
 module.exports = {
     validateTechnologyInsertInput: function(technologyInput) {
-        if (!technologyInput.name || !technologyInput.category || !technologyInput.ring || !technologyInput.description) {
+        if (!technologyInput.name || !technologyInput.category || !technologyInput.description) {
             return false;
         }
 
@@ -15,7 +15,7 @@ module.exports = {
             return false;
         }
 
-        if (ring !== undefined && !ring.includes(technologyInput.ring)) {
+        if (technologyInput.ring !== undefined && !ring.includes(technologyInput.ring)) {
             return false;
         }
 

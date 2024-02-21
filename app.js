@@ -1,8 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const server = express();
+const cors = require("cors");
 
 server.use(bodyParser.json());
+server.use(cors());
 
 const { validateTechnologyInsertInput, validateTechnologyUpdateInput, validateTechnologyUpdateRing} = require("./TechnologyValidator");
 const mySqlDatabaseInterface = require('./MySqlDatabaseInterface');
