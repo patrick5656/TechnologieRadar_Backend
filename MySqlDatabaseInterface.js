@@ -106,8 +106,20 @@ class DatabaseInterface {
                 values.push(category);
             }
 
-            const sql = `SELECT * FROM Technology WHERE ${where.join(' AND ')}`;
-            return await this.connection.query(sql, values);
+            let sql = 'SELECT * FROM Technology';
+            if (where.length !== 0) {
+                sql = `${sql} WHERE ${where.join(' AND ')}`;
+            }
+
+            return new Promise((resolve, reject) => {
+                this.connection.query(sql, values, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
         } catch (error) {
             throw new Error('Failed to read technologies');
         }

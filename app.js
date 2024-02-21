@@ -135,7 +135,8 @@ server.get('/api/technologies', async (req, res) => {
         const { name, published, ring, category } = req.query;
         const filter = { name, published, ring, category };
         const technologies = await db.readTechnologies(filter);
-        res.status(200).json(technologies);
+
+        res.status(200).json(JSON.parse(JSON.stringify(technologies)));
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
