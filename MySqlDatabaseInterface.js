@@ -1,0 +1,121 @@
+const mysql = require('mysql');
+
+class DatabaseInterface {
+    constructor(connectionParams) {
+        this.connectionParams = connectionParams;
+    }
+
+    async connect() {
+        this.connection = mysql.createConnection(this.connectionParams);
+        await new Promise((resolve, reject) => {
+            this.connection.connect(function(err) {
+                if (err) throw err;
+                else resolve();
+            });
+        })
+    }
+
+    async disconnect() {
+        await new Promise((resolve, reject) => {
+            this.connection.end((err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+    }
+
+    async insertTechnology(technologyJson) {
+        try {
+            const { name, category, ring, description, ring_description, published, created_by_user_id, created_at } = technologyJson;
+            const sql = 'INSERT INTO Technology (name, category, ring, description, ring_description, published, created_by_user_id, created_at, last_updated_by_user_id) ' +
+                'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            await this.connection.query(sql, [name, category, ring, description, ring_description, published, created_by_user_id, created_at, created_by_user_id]);
+        } catch (error) {
+            throw new Error('Failed to insert technology');
+        }
+    }
+
+    async updateTechnology(technologyJson) {
+        try {
+            const {id, name, category, description, last_updated_by_user_id } = technologyJson;
+            const sql = 'UPDATE Technology SET name=?, category=?, description=?, last_updated_by_user_id=?, last_updated=NOW() WHERE id=?';
+            await this.connection.query(sql, [name, category, description, last_updated_by_user_id, id]);
+        } catch (error) {
+            throw new Error('Failed to update technology.');
+        }
+    }
+
+    async updateTechnologyRing(technologyJson) {
+        try {
+            const { id, ring, ring_description, last_updated_by_user_id } = technologyJson;
+            const sql = 'UPDATE Technology SET ring=?, ring_description=?, last_updated_by_user_id=?, last_updated=NOW() WHERE id=?';
+            await this.connection.query(sql, [ring, ring_description, last_updated_by_user_id, id]);
+        } catch (error) {
+            throw new Error('Failed to update technology ring.');
+        }
+    }
+
+    async publishTechnology(technologyJson) {
+        try {
+            const { ring, ring_description, last_updated_by_user_id } = technologyJson;
+            const sql = 'UPDATE Technology SET published=?, ring=?, ring_description=?, last_updated_by_user_id=?, published_at=NOW() ,last_updated=NOW() WHERE id=?';
+            await this.connection.query(sql, [true, ring, ring_description, last_updated_by_user_id, technologyJson.id]);
+        } catch (error) {
+            throw new Error('Failed to update technology ring.');
+        }
+    }
+
+    async readTechnologyById(id) {
+        try {
+            const sql = 'SELECT * FROM Technology WHERE id=?';
+            const result = await this.connection.query(sql, [id]).result;
+            console.log('result = ');
+            console.log(result);
+            if (result.length === 0) {
+                console.log('error');
+                throw new Error('Technology not found');
+            }
+            console.log('result returned = ');
+            console.log(result[0]);
+            return result[0];
+        } catch (error) {
+            throw new Error('Failed to read technology by id');
+        }
+    }
+
+    async readTechnologies(filter = {}) {
+        try {
+            const { name, published, ring, category } = filter;
+            const where = [];
+            const values = [];
+
+            if (name) {
+                where.push('name LIKE ?');
+                values.push(`%${name}%`);
+            }
+
+            if (published !== undefined) {
+                where.push('published = ?');
+                values.push(published);
+            }
+
+            if (ring) {
+                where.push('ring = ?');
+                values.push(ring);
+            }
+
+            if (category) {
+                where.push('category = ?');
+                values.push(category);
+            }
+
+            const sql = `SELECT * FROM Technology WHERE ${where.join(' AND ')}`;
+            return await this.connection.query(sql, values);
+        } catch (error) {
+            throw new Error('Failed to read technologies');
+        }
+    }
+
+}
+
+module.exports = DatabaseInterface;

@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=dbuser
+      - MYSQL_DATABASE=technology_radar
+      - MYSQL_PASSWORD=weblab24
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: dbuser
+      PMA_PASSWORD: weblab24
+    ports:
+      - "8085:80"
