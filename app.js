@@ -116,13 +116,16 @@ server.put('/api/technology/:id/publish', async (req, res) => {
 });
 
 server.get('/api/technology/:id', async (req, res) => {
+    const id = req.params.id;
     try {
-        const id = req.params.id;
-        console.log(id);
         const technology = await db.readTechnologyById(id);
         res.status(200).json(technology);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (error.message === 'No technology found with the given ID') {
+            res.status(404).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
     }
 });
 

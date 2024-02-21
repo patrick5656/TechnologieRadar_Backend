@@ -7,7 +7,7 @@ class DatabaseInterface {
 
     async connect() {
         this.connection = mysql.createConnection(this.connectionParams);
-        await new Promise((resolve, reject) => {
+        await new Promise((resolve) => {
             this.connection.connect(function(err) {
                 if (err) throw err;
                 else resolve();
@@ -68,21 +68,18 @@ class DatabaseInterface {
     async readTechnologyById(id) {
         try {
             const sql = 'SELECT * FROM Technology WHERE id=?';
-            const result = await this.connection.query(sql, [id]).result;
-            console.log('result = ');
-            console.log(result);
-            if (result.length === 0) {
-                console.log('error');
-                throw new Error('Technology not found');
-            }
-            console.log('result returned = ');
-            console.log(result[0]);
-            return result[0];
+            return new Promise((resolve, reject) => {
+                this.connection.query(sql, [id], function (err, result) {
+                    if (err) reject(err);
+                    else if (result[0] && typeof result[0] === 'object') resolve(result[0]);
+                    else reject(new Error('No technology found with the given ID'));
+                });
+            });
+
         } catch (error) {
             throw new Error('Failed to read technology by id');
         }
     }
-
     async readTechnologies(filter = {}) {
         try {
             const { name, published, ring, category } = filter;
