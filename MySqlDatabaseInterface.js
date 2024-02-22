@@ -32,7 +32,7 @@ class DatabaseInterface {
             this.connection.query(sql, [name, category, ring, description, ring_description, published, created_by_user_id, created_at, created_by_user_id], function (err, result) {
                 if (err) reject(err);
                 else if (result.insertId && typeof result.insertId === 'number') resolve(result.insertId);
-                else reject(throw new Error('Failed to insert technology'));
+                else reject(new Error('Failed to insert technology'));
             });
         });
     }
