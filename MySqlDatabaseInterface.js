@@ -25,14 +25,16 @@ class DatabaseInterface {
     }
 
     async insertTechnology(technologyJson) {
-        try {
-            const { name, category, ring, description, ring_description, published, created_by_user_id, created_at } = technologyJson;
-            const sql = 'INSERT INTO Technology (name, category, ring, description, ring_description, published, created_by_user_id, created_at, last_updated_by_user_id) ' +
-                'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-            await this.connection.query(sql, [name, category, ring, description, ring_description, published, created_by_user_id, created_at, created_by_user_id]);
-        } catch (error) {
-            throw new Error('Failed to insert technology');
-        }
+        const { name, category, ring, description, ring_description, published, created_by_user_id, created_at } = technologyJson;
+        const sql = 'INSERT INTO Technology (name, category, ring, description, ring_description, published, created_by_user_id, created_at, last_updated_by_user_id) ' +
+            'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        return new Promise((resolve, reject) => {
+            this.connection.query(sql, [name, category, ring, description, ring_description, published, created_by_user_id, created_at, created_by_user_id], function (err, result) {
+                if (err) reject(err);
+                else if (result.insertId && typeof result.insertId === 'number') resolve(result.insertId);
+                else reject(throw new Error('Failed to insert technology'));
+            });
+        });
     }
 
     async updateTechnology(technologyJson) {
@@ -125,6 +127,23 @@ class DatabaseInterface {
         }
     }
 
+
+    async insertTechnologyChangeEntryCreated(technologyChangeEntryJson) {
+        try {
+            const { technology_id, name, category, description } = technologyChangeEntryJson;
+            const technology = await this.readTechnologyById(technology_id);
+            const { ring, ring_description, published } = technology;
+            const updatedAt = new Date();
+            const updatedByUserId = 1;
+            const changeType = 'created';
+
+            const sql = 'INSERT INTO TechnologyChangeEntry (technology_id, name, category, ring, description, ring_description, published, updatedAt, updatedByUserId, changeType) ' +
+                'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            await this.connection.query(sql, [technology_id, name, category, ring, description, ring_description, published, updatedAt, updatedByUserId, changeType]);
+        } catch (error) {
+            throw new Error('Failed to insert technology change entry');
+        }
+    }
 }
 
 module.exports = DatabaseInterface;

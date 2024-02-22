@@ -49,9 +49,13 @@ server.post('/api/technology', async (req, res) => {
         const created_by_user_id = 1;
         const published = false;
         const technologyJson = { name, category, ring, description, ring_description, published, created_by_user_id, created_at: currentDate };
+        db.insertTechnology(technologyJson).then(
+            (insertedId) => {
+                res.status(201).json({ message: 'Technology inserted successfully' });
+                technologyJson.technology_id = insertedId
+                db.insertTechnologyChangeEntryCreated(technologyJson);
+            }
 
-        await db.insertTechnology(technologyJson).then(
-            () => res.status(201).json({ message: 'Technology inserted successfully' })
         );
     } catch (error) {
         res.status(500).json({ error: error.message });
