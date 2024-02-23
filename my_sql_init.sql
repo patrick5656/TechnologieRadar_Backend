@@ -25,5 +25,6 @@ CREATE TABLE TechnologyChangeEntry (
     published BOOLEAN NOT NULL,
     updatedAt DATETIME NOT NULL,
     updatedByUserId INT NOT NULL,
-    changeType VARCHAR(50) NOT NULL
+    changeType VARCHAR(50) NOT NULL,
+    FOREIGN KEY (technology_id) REFERENCES Technology(id)
 );

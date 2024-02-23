@@ -77,6 +77,8 @@ server.put('/api/technology/:id', async (req, res) => {
 
         await db.updateTechnology(technologyJson);
         res.status(200).json({ message: 'Technology updated successfully' });
+        await db.insertTechnologyChangeEntryUpdate(technologyJson);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -96,6 +98,7 @@ server.put('/api/technology/:id/ring', async (req, res) => {
 
         await db.updateTechnologyRing(technologyJson);
         res.status(200).json({ message: 'Technology ring updated successfully' });
+        await db.insertTechnologyChangeEntryUpdateRing(technologyJson);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -116,6 +119,7 @@ server.put('/api/technology/:id/publish', async (req, res) => {
 
         await db.publishTechnology(technologyJson);
         res.status(200).json({ message: 'Technology published successfully' });
+        await db.insertTechnologyChangeEntryPublish(technologyJson);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
