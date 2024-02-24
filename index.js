@@ -1,12 +1,13 @@
 const app = require('./app.js');
 const mySqlDatabaseInterface = require('./MySqlDatabaseInterface');
+require('dotenv').config();
 
 // Create DB-Connection
 const mysqlConnectionParams = {
-    host: process.env.HOST || 'localhost',
-    user: process.env.USER || 'dbuser',
-    password: process.env.PASSWORD || 'weblab24',
-    database: process.env.DATABASE || 'technology_radar',
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
 };
 const db = new mySqlDatabaseInterface(mysqlConnectionParams);
 
