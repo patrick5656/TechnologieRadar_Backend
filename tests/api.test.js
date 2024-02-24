@@ -429,3 +429,98 @@ describe('GET /api/technology', () => {
             });
     });
 });
+
+
+describe('GET /api/technologies', () => {
+    let readTechnologies;
+
+    beforeEach(() => {
+        readTechnologies = sinon.stub(db, 'readTechnologies');
+    });
+
+    afterEach(() => {
+        readTechnologies.restore();
+    });
+
+    it('responds with 200 when technologies were found', (done) => {
+        const createdAt = new Date('2024-01-01T00:00:00Z');
+        const publishedAt = new Date('2024-02-01T00:00:00Z');
+
+        const expectedResponse = [{
+            id: 1,
+            name: 'Angular',
+            category: 'Techniques',
+            description: 'description',
+            ring: null,
+            ring_description: null,
+            published: false,
+            created_by_user_id: 1,
+            created_at: createdAt,
+            published_at: null,
+            last_updated: null,
+            last_updated_by_user_id: null
+        },
+            {
+                id: 2,
+                name: 'React',
+                category: 'Frameworks',
+                description: 'description',
+                ring: null,
+                ring_description: null,
+                published: true,
+                created_by_user_id: 2,
+                created_at: createdAt,
+                published_at: publishedAt,
+                last_updated: null,
+                last_updated_by_user_id: null
+            }];
+
+        readTechnologies.callsFake(() => {
+            return Promise.resolve(expectedResponse);
+        });
+
+        request(app)
+            .get('/api/technologies')
+            .expect(200)
+            .end((err, res) => {
+                if (err) return done(err);
+                // Überprüfen, ob die Anzahl der Technologien in der Antwort mit der Anzahl im expectedResponse übereinstimmt
+                expect(res.body.length).toEqual(expectedResponse.length);
+
+                // Überprüfen, ob jede Technologie in der Antwort den erwarteten Werten entspricht
+                expectedResponse.forEach((expectedObj, index) => {
+                    const resObj = res.body[index];
+                    expect(resObj.id).toEqual(expectedObj.id);
+                    expect(resObj.name).toEqual(expectedObj.name);
+                    expect(resObj.category).toEqual(expectedObj.category);
+                    expect(resObj.description).toEqual(expectedObj.description);
+                    expect(resObj.ring).toEqual(expectedObj.ring);
+                    expect(resObj.ring_description).toEqual(expectedObj.ring_description);
+                    expect(resObj.published).toEqual(expectedObj.published);
+                    expect(resObj.created_by_user_id).toEqual(expectedObj.created_by_user_id);
+                    expect(new Date(resObj.created_at)).toEqual(expectedObj.created_at);
+                    expect(resObj.published_at !== null ? new Date(resObj.published_at) : null).toEqual(expectedObj.published_at);
+                    expect(resObj.last_updated).toEqual(expectedObj.last_updated);
+                    expect(resObj.last_updated_by_user_id).toEqual(expectedObj.last_updated_by_user_id);
+                });
+                done();
+            });
+    });
+
+
+    it('responds with 500 when an error occurs', (done) => {
+        readTechnologies.callsFake(() => {
+            return Promise.reject(new Error('Database error'));
+        });
+
+        request(app)
+            .get('/api/technologies')
+            .expect(500)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body.error).toBe('Database error');
+                done();
+            });
+    });
+});
+
